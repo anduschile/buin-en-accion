@@ -1,0 +1,49 @@
+
+> web@0.1.0 lint
+> eslint
+
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\app\admin\items\page.tsx
+  20:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\app\admin\layout.tsx
+  5:37  warning  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\app\admin\page.tsx
+  22:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\app\item\[id]\page.tsx
+   37:49  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   92:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  101:60  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\app\mapa\page.tsx
+  30:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\app\semaforo\page.tsx
+  25:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\components\admin\AdminItemCard.tsx
+   7:10  warning  'Loader2' is defined but never used       @typescript-eslint/no-unused-vars
+  10:57  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\components\layout\Navbar.tsx
+  4:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+  5:35  warning  'Menu' is defined but never used    @typescript-eslint/no-unused-vars
+  5:41  warning  'User' is defined but never used    @typescript-eslint/no-unused-vars
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\components\map\PublicMap.tsx
+  53:37  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\components\map\PublicMapClient.tsx
+  19:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\lib\actions\admin.ts
+  32:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\2026\Paginas Webs 2026\Natales 2026\src\lib\actions\items.ts
+   7:10  warning  'z' is defined but never used              @typescript-eslint/no-unused-vars
+  83:48  warning  'type' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 18 problems (9 errors, 9 warnings)
+
