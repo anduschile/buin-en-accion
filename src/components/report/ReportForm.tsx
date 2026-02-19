@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createItem } from '@/lib/actions/items'
 import { Button } from '@/components/ui/button'
 import dynamic from 'next/dynamic'
@@ -24,8 +24,41 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
     const [pending, setPending] = useState(false)
     const [compressing, setCompressing] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    // Controlled state for persistence
     const [lat, setLat] = useState<number | null>(null)
     const [lng, setLng] = useState<number | null>(null)
+    const [kind, setKind] = useState('problem')
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [categoryId, setCategoryId] = useState('')
+
+    // Load draft on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('natales_report_draft_v1')
+        if (saved) {
+            try {
+                const data = JSON.parse(saved)
+                if (data.lat !== undefined) setLat(data.lat)
+                if (data.lng !== undefined) setLng(data.lng)
+                if (data.kind !== undefined) setKind(data.kind)
+                if (data.title !== undefined) setTitle(data.title)
+                if (data.description !== undefined) setDescription(data.description)
+                if (data.categoryId !== undefined) setCategoryId(data.categoryId)
+            } catch (e) {
+                console.error('Failed to load draft', e)
+            }
+        }
+    }, [])
+
+    // Save draft on change
+    useEffect(() => {
+        const data = { lat, lng, kind, title, description, categoryId }
+        const handler = setTimeout(() => {
+            localStorage.setItem('natales_report_draft_v1', JSON.stringify(data))
+        }, 500) // Debounce 500ms
+        return () => clearTimeout(handler)
+    }, [lat, lng, kind, title, description, categoryId])
 
     async function handleSubmit(formData: FormData) {
         if (lat === null || lng === null) {
@@ -37,27 +70,18 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
         setError(null)
         setCompressing(false)
 
-        // Image processing
+        // Image processing & validation
         const evidenceFile = formData.get('evidence') as File
         if (evidenceFile && evidenceFile.size > 0 && evidenceFile.name !== 'undefined') {
-            // Validation
-            const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+            // Validation (5MB)
+            const MAX_SIZE = 5 * 1024 * 1024
             if (evidenceFile.size > MAX_SIZE) {
-                // Try to compress if it's just large, but if it's HUGE, maybe warn.
-                // But the requirement says: "If > 5MB show error".
-                // AND "If > 1600px OR > 1.5MB: compress".
-                // So if it is > 5MB, we CAN try to compress, but user asked to show error.
-                // Let's allow compression attempt first? 
-                // "Si excede MAX_BYTES: mostrar error UI ... suggestion reduce size"
-                // "Si excede ... compress automatically"
-                // Usually compression is better UX than error. I'll let compression run if it's an image.
-                // But strict interpretation: Error if > 5MB.
                 setError(`La imagen es demasiado pesada (${(evidenceFile.size / 1024 / 1024).toFixed(1)}MB). Máximo 5MB. Intenta reducirla.`)
                 setPending(false)
                 return
             }
 
-            // Compression logic
+            // Compression logic (>1.5MB)
             if (evidenceFile.size > 1.5 * 1024 * 1024) {
                 setCompressing(true)
                 try {
@@ -65,8 +89,6 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                     formData.set('evidence', compressed)
                 } catch (err) {
                     console.error('Compression failed:', err)
-                    // Fallback to original, or error?
-                    // "No pudimos subir la foto... intenta con una más liviana"
                     setError('No pudimos procesar la foto. Intenta con una más liviana.')
                     setPending(false)
                     setCompressing(false)
@@ -76,9 +98,12 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
             }
         }
 
-        // Append location
-        formData.append('latitude', lat.toString())
-        formData.append('longitude', lng.toString())
+        // Append location (explicitly from state, though inputs might not exist if using custom components)
+        // Wait, LocationPicker doesn't have hidden inputs, so must append manually.
+        // Controlled inputs have 'name' attributes so they are in formData automatically.
+        // Location is manually managed.
+        formData.set('latitude', lat.toString())
+        formData.set('longitude', lng.toString())
 
         try {
             const result = await createItem(formData)
@@ -88,10 +113,14 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 if (typeof result.error === 'string') {
                     setError(result.error)
                 } else {
-                    // Flatten validation errors
                     setError(Object.values(result.error).flat().join(', '))
                 }
                 setPending(false)
+                // DO NOT CLEAR STATE ON ERROR
+            } else {
+                // Success! Clear draft
+                localStorage.removeItem('natales_report_draft_v1')
+                // createItem redirects, so component effectively unmounts/redirects.
             }
         } catch (err) {
             console.error('Upload error:', err)
@@ -108,12 +137,26 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
             <div>
                 <label className="block text-sm font-medium mb-1">¿Qué quieres reportar?</label>
                 <div className="flex gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer border p-3 rounded-md has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 w-full justify-center text-center">
-                        <input type="radio" name="kind" value="problem" defaultChecked className="accent-blue-600" />
+                    <label className={`flex items-center gap-2 cursor-pointer border p-3 rounded-md w-full justify-center text-center ${kind === 'problem' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'hover:bg-zinc-50'}`}>
+                        <input
+                            type="radio"
+                            name="kind"
+                            value="problem"
+                            checked={kind === 'problem'}
+                            onChange={(e) => setKind(e.target.value)}
+                            className="accent-blue-600"
+                        />
                         <span className="font-medium">Un Problema</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer border p-3 rounded-md has-[:checked]:bg-green-50 has-[:checked]:border-green-500 w-full justify-center text-center">
-                        <input type="radio" name="kind" value="good" className="accent-green-600" />
+                    <label className={`flex items-center gap-2 cursor-pointer border p-3 rounded-md w-full justify-center text-center ${kind === 'good' ? 'bg-green-50 border-green-500 ring-1 ring-green-500' : 'hover:bg-zinc-50'}`}>
+                        <input
+                            type="radio"
+                            name="kind"
+                            value="good"
+                            checked={kind === 'good'}
+                            onChange={(e) => setKind(e.target.value)}
+                            className="accent-green-600"
+                        />
                         <span className="font-medium">Un Acierto / Buena Noticia</span>
                     </label>
                 </div>
@@ -127,6 +170,8 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                     type="text"
                     required
                     minLength={5}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     placeholder="Ej: Bache en calle Bulnes"
                     className="w-full px-3 py-2 border rounded-md dark:bg-zinc-800 dark:border-zinc-700"
                 />
@@ -140,6 +185,8 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                     required
                     minLength={10}
                     rows={3}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     placeholder="Describe el problema con detalle..."
                     className="w-full px-3 py-2 border rounded-md dark:bg-zinc-800 dark:border-zinc-700"
                 />
@@ -157,6 +204,8 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                     <select
                         name="category_id"
                         required
+                        value={categoryId}
+                        onChange={(e) => setCategoryId(e.target.value)}
                         className="w-full px-3 py-2 border rounded-md dark:bg-zinc-800 dark:border-zinc-700"
                     >
                         <option value="">Selecciona una categoría</option>
@@ -170,7 +219,13 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
             {/* Location */}
             <div>
                 <label className="block text-sm font-medium mb-1">Ubicación (Toca en el mapa)</label>
-                <LocationPicker onLocationSelect={(lat, lng) => { setLat(lat); setLng(lng) }} />
+                <LocationPicker
+                    // Pass current lat/lng to component if it accepts it to show marker?
+                    // LocationPicker doesn't seem to have props for initial position in the simplified view I saw.
+                    // But if it maintains its own state or needs to be controlled, we might need to update it.
+                    // Assuming LocationPicker is simple:
+                    onLocationSelect={(lat, lng) => { setLat(lat); setLng(lng) }}
+                />
                 {lat !== null && lng !== null && <p className="text-xs text-green-600 mt-1">Ubicación seleccionada: {lat.toFixed(4)}, {lng.toFixed(4)}</p>}
             </div>
 
