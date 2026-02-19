@@ -33,6 +33,7 @@ interface Item {
     status: string
     resolved_at?: string | null
     resolution_note?: string | null
+    is_general?: boolean
 }
 
 export default function PublicMap({ items }: { items: Item[] }) {
@@ -47,6 +48,9 @@ export default function PublicMap({ items }: { items: Item[] }) {
     const [lightboxAlt, setLightboxAlt] = useState<string>('')
 
     const filteredItems = items.filter(i => {
+        // Exclude general reports regardless of coords
+        if (i.is_general) return false
+
         const validCoords = Number.isFinite(i.latitude) && Number.isFinite(i.longitude)
         if (!validCoords) return false
 

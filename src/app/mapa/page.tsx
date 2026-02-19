@@ -41,6 +41,7 @@ export default async function MapPage() {
             status: i.status,
             resolved_at: i.resolved_at,
             resolution_note: i.resolution_note,
+            is_general: i.is_general,
         }))
         // Filter out items without valid numeric coordinates
         .filter(i => typeof i.latitude === 'number' && typeof i.longitude === 'number') as any

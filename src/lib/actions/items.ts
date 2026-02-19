@@ -19,45 +19,42 @@ export async function createItem(formData: FormData) {
     }
 
     // Parse fields
-    const rawData = {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        latitude: Number(formData.get('latitude')),
-        longitude: Number(formData.get('longitude')),
-        category_id: formData.get('category_id'),
-        evidence: formData.get('evidence') as File | null,
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+    const category_id = formData.get('category_id') as string
+    const kind = formData.get('kind') as string
+    const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null
+    const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null
+    const is_general = formData.get('is_general') === 'true'
+
+    // Validation
+    if (!title || !description || !category_id || !kind) {
+        return { error: 'Faltan campos obligatorios' }
     }
 
-    // Validate non-file fields first
-    const validatedFields = itemSchema.safeParse({
-        ...rawData,
-        evidence_path: rawData.evidence?.name ? 'temp' : undefined, // Check if file exists
-    })
-
-    if (!validatedFields.success) {
-        return { error: validatedFields.error.flatten().fieldErrors }
+    if (!is_general && (latitude === null || longitude === null)) {
+        return { error: 'La ubicación es obligatoria para este tipo de reporte.' }
     }
 
-    let evidencePath = null
-
+    let evidence_path = null
+    const evidenceFile = formData.get('evidence') as File
 
     // Handle file upload
-    if (rawData.evidence && rawData.evidence.size > 0) {
+    if (evidenceFile && evidenceFile.size > 0 && evidenceFile.name !== 'undefined') {
         try {
-            const file = rawData.evidence
-            const fileExt = file.name.split('.').pop()
-            const sanitizedFileName = file.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+            const fileExt = evidenceFile.name.split('.').pop()
+            const sanitizedFileName = evidenceFile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
             const fileName = `natales/${user.id}/${crypto.randomUUID()}-${sanitizedFileName}`
 
             const { error: uploadError } = await supabase.storage
                 .from('natales_evidence')
-                .upload(fileName, file, { upsert: false })
+                .upload(fileName, evidenceFile, { upsert: false })
 
             if (uploadError) {
                 console.error({ step: 'upload', error: uploadError })
                 return { error: `Error subiendo imagen: ${uploadError.message}` }
             }
-            evidencePath = fileName
+            evidence_path = fileName
         } catch (e) {
             console.error({ step: 'upload_exception', error: e })
             return { error: 'Error procesando la imagen.' }
@@ -66,16 +63,16 @@ export async function createItem(formData: FormData) {
 
     // Insert into DB
     const { error: insertError } = await supabase.from('natales_items').insert({
-        title: validatedFields.data.title,
-        description: validatedFields.data.description,
-        latitude: validatedFields.data.latitude,
-        longitude: validatedFields.data.longitude,
-        category_id: validatedFields.data.category_id,
+        title,
+        description,
+        latitude,
+        longitude,
+        category_id,
         created_by: user.id,
-        evidence_path: evidencePath,
-        kind: (formData.get('kind') as 'problem' | 'good') || 'problem',
+        evidence_path,
+        kind,
         status: 'pending',
-        // traffic_level removed to use DB default
+        is_general
     })
 
     if (insertError) {

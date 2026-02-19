@@ -25,44 +25,40 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
     const [compressing, setCompressing] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // Controlled state for persistence
+    // Controlled state for draft
     const [lat, setLat] = useState<number | null>(null)
     const [lng, setLng] = useState<number | null>(null)
     const [kind, setKind] = useState('problem')
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [categoryId, setCategoryId] = useState('')
+    const [isGeneral, setIsGeneral] = useState(false)
 
-    // Load draft on mount
+    // Load draft from session on mount (only if it exists from a previous error)
     useEffect(() => {
-        const saved = localStorage.getItem('natales_report_draft_v1')
+        const saved = sessionStorage.getItem('natales_report_draft_v1')
         if (saved) {
             try {
                 const data = JSON.parse(saved)
+                // Restore headers
+                if (data.isGeneral !== undefined) setIsGeneral(data.isGeneral)
+                if (data.kind) setKind(data.kind)
+                if (data.title) setTitle(data.title)
+                if (data.description) setDescription(data.description)
+                if (data.categoryId) setCategoryId(data.categoryId)
+                // Restore location if available
                 if (data.lat !== undefined) setLat(data.lat)
                 if (data.lng !== undefined) setLng(data.lng)
-                if (data.kind !== undefined) setKind(data.kind)
-                if (data.title !== undefined) setTitle(data.title)
-                if (data.description !== undefined) setDescription(data.description)
-                if (data.categoryId !== undefined) setCategoryId(data.categoryId)
             } catch (e) {
                 console.error('Failed to load draft', e)
             }
         }
     }, [])
 
-    // Save draft on change
-    useEffect(() => {
-        const data = { lat, lng, kind, title, description, categoryId }
-        const handler = setTimeout(() => {
-            localStorage.setItem('natales_report_draft_v1', JSON.stringify(data))
-        }, 500) // Debounce 500ms
-        return () => clearTimeout(handler)
-    }, [lat, lng, kind, title, description, categoryId])
-
     async function handleSubmit(formData: FormData) {
-        if (lat === null || lng === null) {
-            setError('Por favor selecciona una ubicación en el mapa.')
+        // Validation: Location requirement
+        if (!isGeneral && (lat === null || lng === null)) {
+            setError('Debes seleccionar un punto en el mapa o marcar "Reporte general (sin ubicación)".')
             return
         }
 
@@ -70,18 +66,17 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
         setError(null)
         setCompressing(false)
 
-        // Image processing & validation
+        // Image processing
         const evidenceFile = formData.get('evidence') as File
         if (evidenceFile && evidenceFile.size > 0 && evidenceFile.name !== 'undefined') {
-            // Validation (5MB)
             const MAX_SIZE = 5 * 1024 * 1024
             if (evidenceFile.size > MAX_SIZE) {
                 setError(`La imagen es demasiado pesada (${(evidenceFile.size / 1024 / 1024).toFixed(1)}MB). Máximo 5MB. Intenta reducirla.`)
+                saveDraft()
                 setPending(false)
                 return
             }
 
-            // Compression logic (>1.5MB)
             if (evidenceFile.size > 1.5 * 1024 * 1024) {
                 setCompressing(true)
                 try {
@@ -90,6 +85,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 } catch (err) {
                     console.error('Compression failed:', err)
                     setError('No pudimos procesar la foto. Intenta con una más liviana.')
+                    saveDraft()
                     setPending(false)
                     setCompressing(false)
                     return
@@ -98,12 +94,12 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
             }
         }
 
-        // Append location (explicitly from state, though inputs might not exist if using custom components)
-        // Wait, LocationPicker doesn't have hidden inputs, so must append manually.
-        // Controlled inputs have 'name' attributes so they are in formData automatically.
-        // Location is manually managed.
-        formData.set('latitude', lat.toString())
-        formData.set('longitude', lng.toString())
+        // Append data
+        if (lat !== null) formData.set('latitude', lat.toString())
+        if (lng !== null) formData.set('longitude', lng.toString())
+        formData.set('is_general', isGeneral.toString())
+        // controlled inputs are already in formData by name, but we sync state just in case?
+        // No, formData comes from the form event, so input values are there.
 
         try {
             const result = await createItem(formData)
@@ -115,18 +111,23 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 } else {
                     setError(Object.values(result.error).flat().join(', '))
                 }
+                saveDraft()
                 setPending(false)
-                // DO NOT CLEAR STATE ON ERROR
             } else {
-                // Success! Clear draft
-                localStorage.removeItem('natales_report_draft_v1')
-                // createItem redirects, so component effectively unmounts/redirects.
+                // Success! Clear session draft
+                sessionStorage.removeItem('natales_report_draft_v1')
             }
         } catch (err) {
             console.error('Upload error:', err)
             setError('No pudimos subir el reporte. Puede ser que la foto sea muy pesada o tu conexión inestable.')
+            saveDraft()
             setPending(false)
         }
+    }
+
+    function saveDraft() {
+        const data = { lat, lng, kind, title, description, categoryId, isGeneral }
+        sessionStorage.setItem('natales_report_draft_v1', JSON.stringify(data))
     }
 
     return (
@@ -216,17 +217,40 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 )}
             </div>
 
-            {/* Location */}
-            <div>
-                <label className="block text-sm font-medium mb-1">Ubicación (Toca en el mapa)</label>
-                <LocationPicker
-                    // Pass current lat/lng to component if it accepts it to show marker?
-                    // LocationPicker doesn't seem to have props for initial position in the simplified view I saw.
-                    // But if it maintains its own state or needs to be controlled, we might need to update it.
-                    // Assuming LocationPicker is simple:
-                    onLocationSelect={(lat, lng) => { setLat(lat); setLng(lng) }}
+            {/* General Report Toggle */}
+            <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-md border border-zinc-200 dark:border-zinc-700">
+                <input
+                    type="checkbox"
+                    id="isGeneral"
+                    checked={isGeneral}
+                    onChange={(e) => {
+                        setIsGeneral(e.target.checked)
+                        if (e.target.checked) {
+                            setError(null) // Clear location error if any
+                        }
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                {lat !== null && lng !== null && <p className="text-xs text-green-600 mt-1">Ubicación seleccionada: {lat.toFixed(4)}, {lng.toFixed(4)}</p>}
+                <label htmlFor="isGeneral" className="text-sm font-medium cursor-pointer flex-1">
+                    Reporte general (sin ubicación)
+                    <span className="block text-xs text-zinc-500 font-normal">Úsalo si no hay un punto exacto en el mapa.</span>
+                </label>
+            </div>
+
+            {/* Location */}
+            <div className={isGeneral ? 'opacity-50 pointer-events-none grayscale' : ''}>
+                <label className="block text-sm font-medium mb-1">
+                    Ubicación {isGeneral ? '(Opcional/Desactivada)' : '(Toca en el mapa)'}
+                </label>
+                <LocationPicker
+                    onLocationSelect={(lat, lng) => {
+                        if (!isGeneral) {
+                            setLat(lat)
+                            setLng(lng)
+                        }
+                    }}
+                />
+                {!isGeneral && lat !== null && lng !== null && <p className="text-xs text-green-600 mt-1">Ubicación seleccionada: {lat.toFixed(4)}, {lng.toFixed(4)}</p>}
             </div>
 
             {/* Evidence */}

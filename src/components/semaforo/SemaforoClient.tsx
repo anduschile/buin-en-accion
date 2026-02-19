@@ -20,6 +20,7 @@ interface SemaforoItem {
     category_name: string
     evidence_path?: string | null
     kind?: 'problem' | 'good'
+    is_general?: boolean
 }
 
 export default function SemaforoClient({ items }: { items: SemaforoItem[] }) {
@@ -119,8 +120,16 @@ export default function SemaforoClient({ items }: { items: SemaforoItem[] }) {
                                             {item.category_name}
                                         </span>
                                         <span className="text-xs text-zinc-500 flex items-center gap-1">
-                                            <MapPin className="h-3 w-3" />
-                                            {item.latitude.toFixed(4)}, {item.longitude.toFixed(4)}
+                                            {item.is_general ? (
+                                                <span className="bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded border text-[10px] uppercase font-bold">
+                                                    Sin ubicación
+                                                </span>
+                                            ) : (
+                                                <>
+                                                    <MapPin className="h-3 w-3" />
+                                                    {item.latitude.toFixed(4)}, {item.longitude.toFixed(4)}
+                                                </>
+                                            )}
                                         </span>
                                         {hasEvidence && (
                                             <span className="text-xs text-zinc-500 flex items-center gap-1 ml-2 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full border">
