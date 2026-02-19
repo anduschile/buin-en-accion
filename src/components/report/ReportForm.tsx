@@ -35,6 +35,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
     const [isGeneral, setIsGeneral] = useState(false)
 
     // Load draft from session on mount (only if it exists from a previous error)
+    // AND consume it (delete it) so it doesn't persist for next fresh load
     useEffect(() => {
         const saved = sessionStorage.getItem('natales_report_draft_v1')
         if (saved) {
@@ -49,16 +50,28 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 // Restore location if available
                 if (data.lat !== undefined) setLat(data.lat)
                 if (data.lng !== undefined) setLng(data.lng)
+
+                // CONSUME the draft so it doesn't stick around
+                sessionStorage.removeItem('natales_report_draft_v1')
             } catch (e) {
                 console.error('Failed to load draft', e)
             }
         }
     }, [])
 
+    // NOTE: Auto-save useEffect REMOVED. We only save on error.
+
+    function saveDraft() {
+        const data = { lat, lng, kind, title, description, categoryId, isGeneral }
+        sessionStorage.setItem('natales_report_draft_v1', JSON.stringify(data))
+    }
+
     async function handleSubmit(formData: FormData) {
         // Validation: Location requirement
         if (!isGeneral && (lat === null || lng === null)) {
             setError('Debes seleccionar un punto en el mapa o marcar "Reporte general (sin ubicación)".')
+            saveDraft() // Save draft on validation error
+            setPending(false)
             return
         }
 
@@ -97,9 +110,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
         // Append data
         if (lat !== null) formData.set('latitude', lat.toString())
         if (lng !== null) formData.set('longitude', lng.toString())
-        formData.set('is_general', isGeneral.toString())
-        // controlled inputs are already in formData by name, but we sync state just in case?
-        // No, formData comes from the form event, so input values are there.
+        formData.set('is_general', isGeneral ? 'true' : 'false')
 
         try {
             const result = await createItem(formData)
@@ -114,8 +125,26 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 saveDraft()
                 setPending(false)
             } else {
-                // Success! Clear session draft
+                // Success! 
+                // Clear any draft just in case (though we consumed it on load)
                 sessionStorage.removeItem('natales_report_draft_v1')
+
+                // Reset form state
+                setTitle('')
+                setDescription('')
+                setCategoryId('')
+                setLat(null)
+                setLng(null)
+                setIsGeneral(false)
+                setKind('problem')
+                // File input is uncontrolled but we can't easily clear it without ref or wrapper. 
+                // But typically redirect happens or we can just leave it.
+                // If createItem redirects, component unmounts.
+                // If it doesn't redirect (e.g. using server action that returns to same page), we should reset.
+                // The action `createItem` does `redirect('/gracias')`.
+                // So state reset is mostly for if/when we don't redirect or if React preserves state?
+                // Actually if it redirects, this code might not even run or unmount happens.
+                // But good practice.
             }
         } catch (err) {
             console.error('Upload error:', err)
