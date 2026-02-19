@@ -6,8 +6,9 @@ import { createItem } from '@/lib/actions/items'
 import { Button } from '@/components/ui/button'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
+import { compressImage } from '@/lib/utils/compress'
 
-// Dynamic import for Leaflet map to avoid SSR issues
+// Dynamic import for Leaflet map to avoid user issues
 const LocationPicker = dynamic(() => import('./LocationPicker'), {
     ssr: false,
     loading: () => <div className="h-[300px] w-full bg-gray-100 animate-pulse rounded-md flex items-center justify-center text-gray-400">Cargando mapa...</div>
@@ -21,6 +22,7 @@ interface Category {
 
 export default function ReportForm({ categories }: { categories: Category[] }) {
     const [pending, setPending] = useState(false)
+    const [compressing, setCompressing] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [lat, setLat] = useState<number | null>(null)
     const [lng, setLng] = useState<number | null>(null)
@@ -33,24 +35,69 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
 
         setPending(true)
         setError(null)
+        setCompressing(false)
+
+        // Image processing
+        const evidenceFile = formData.get('evidence') as File
+        if (evidenceFile && evidenceFile.size > 0 && evidenceFile.name !== 'undefined') {
+            // Validation
+            const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+            if (evidenceFile.size > MAX_SIZE) {
+                // Try to compress if it's just large, but if it's HUGE, maybe warn.
+                // But the requirement says: "If > 5MB show error".
+                // AND "If > 1600px OR > 1.5MB: compress".
+                // So if it is > 5MB, we CAN try to compress, but user asked to show error.
+                // Let's allow compression attempt first? 
+                // "Si excede MAX_BYTES: mostrar error UI ... suggestion reduce size"
+                // "Si excede ... compress automatically"
+                // Usually compression is better UX than error. I'll let compression run if it's an image.
+                // But strict interpretation: Error if > 5MB.
+                setError(`La imagen es demasiado pesada (${(evidenceFile.size / 1024 / 1024).toFixed(1)}MB). Máximo 5MB. Intenta reducirla.`)
+                setPending(false)
+                return
+            }
+
+            // Compression logic
+            if (evidenceFile.size > 1.5 * 1024 * 1024) {
+                setCompressing(true)
+                try {
+                    const compressed = await compressImage(evidenceFile)
+                    formData.set('evidence', compressed)
+                } catch (err) {
+                    console.error('Compression failed:', err)
+                    // Fallback to original, or error?
+                    // "No pudimos subir la foto... intenta con una más liviana"
+                    setError('No pudimos procesar la foto. Intenta con una más liviana.')
+                    setPending(false)
+                    setCompressing(false)
+                    return
+                }
+                setCompressing(false)
+            }
+        }
 
         // Append location
         formData.append('latitude', lat.toString())
         formData.append('longitude', lng.toString())
 
-        const result = await createItem(formData)
+        try {
+            const result = await createItem(formData)
 
-        if (result?.error) {
-            console.error('Report submission error:', result.error)
-            if (typeof result.error === 'string') {
-                setError(result.error)
-            } else {
-                // Flatten validation errors
-                setError(Object.values(result.error).flat().join(', '))
+            if (result?.error) {
+                console.error('Report submission error:', result.error)
+                if (typeof result.error === 'string') {
+                    setError(result.error)
+                } else {
+                    // Flatten validation errors
+                    setError(Object.values(result.error).flat().join(', '))
+                }
+                setPending(false)
             }
+        } catch (err) {
+            console.error('Upload error:', err)
+            setError('No pudimos subir el reporte. Puede ser que la foto sea muy pesada o tu conexión inestable.')
             setPending(false)
         }
-        // If success, createItem redirects, so no need to stop pending
     }
 
     return (
@@ -133,7 +180,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 <input
                     name="evidence"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                     className="w-full text-sm text-slate-500
             file:mr-4 file:py-2 file:px-4
             file:rounded-full file:border-0
@@ -141,6 +188,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
             file:bg-blue-50 file:text-blue-700
             hover:file:bg-blue-100"
                 />
+                <p className="text-xs text-zinc-500 mt-1">Máx 5MB. Recomendado &lt; 2MB.</p>
             </div>
 
             {/* Errors */}
@@ -151,8 +199,14 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
             )}
 
             {/* Submit */}
-            <Button type="submit" className="w-full" disabled={pending}>
-                {pending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando...</> : 'Enviar Reporte'}
+            <Button type="submit" className="w-full" disabled={pending || compressing}>
+                {compressing ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando imagen...</>
+                ) : pending ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando...</>
+                ) : (
+                    'Enviar Reporte'
+                )}
             </Button>
 
         </form>

@@ -2,7 +2,8 @@
 import { createClient } from '@/lib/supabase/server'
 import PublicMapClient from '@/components/map/PublicMapClient'
 
-export const revalidate = 60 // Revalidate every minute
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function MapPage() {
     const supabase = await createClient()
@@ -12,16 +13,15 @@ export default async function MapPage() {
         .select('*, category:natales_categories(name)')
         .in('status', ['published', 'resolved'])
 
-    const items = await Promise.all((rawItems || []).map(async (item) => {
+    const items = (rawItems || []).map((item) => {
         let evidence_url = null
         if (item.evidence_path) {
-            const { data } = await supabase.storage
-                .from('natales_evidence')
-                .createSignedUrl(item.evidence_path, 3600) // 1 hour
-            evidence_url = data?.signedUrl || null
+            // Use public URL directly
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+            evidence_url = `${supabaseUrl}/storage/v1/object/public/natales_evidence/${item.evidence_path}`
         }
         return { ...item, evidence_url }
-    }))
+    })
 
     // Cast for component with robust normalization
     const mappedItems = items
