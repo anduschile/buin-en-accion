@@ -1,4 +1,3 @@
-
 'use client'
 
 import dynamic from 'next/dynamic'
@@ -27,7 +26,11 @@ export default function PublicMapClient({ items }: {
         traffic_level: string
         evidence_url: string | null
         kind?: 'problem' | 'good'
+        status: string
+        resolved_at?: string | null
+        resolution_note?: string | null
     }[]
 }) {
+    // @ts-ignore dynamic import typing issue
     return <PublicMap items={items} />
 }

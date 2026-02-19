@@ -10,7 +10,7 @@ export default async function MapPage() {
     const { data: rawItems } = await supabase
         .from('natales_items')
         .select('*, category:natales_categories(name)')
-        .eq('status', 'published')
+        .in('status', ['published', 'resolved'])
 
     const items = await Promise.all((rawItems || []).map(async (item) => {
         let evidence_url = null
@@ -38,6 +38,9 @@ export default async function MapPage() {
             traffic_level: (i.traffic_level ?? i.traffic) as string,
             evidence_url: i.evidence_url ?? null,
             kind: i.kind,
+            status: i.status,
+            resolved_at: i.resolved_at,
+            resolution_note: i.resolution_note,
         }))
         // Filter out items without valid numeric coordinates
         .filter(i => typeof i.latitude === 'number' && typeof i.longitude === 'number') as any

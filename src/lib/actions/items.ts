@@ -103,7 +103,7 @@ export async function voteItem(itemId: string, type: 'priority' = 'priority') {
         .from('natales_votes')
         .select('*')
         .eq('item_id', itemId)
-        .eq('user_id', user.id)
+        .eq('created_by', user.id)
         .single()
 
     if (existingVote) {
@@ -112,12 +112,12 @@ export async function voteItem(itemId: string, type: 'priority' = 'priority') {
             .from('natales_votes')
             .delete()
             .eq('item_id', itemId)
-            .eq('user_id', user.id)
+            .eq('created_by', user.id)
     } else {
         // Insert vote
         await supabase.from('natales_votes').insert({
             item_id: itemId,
-            user_id: user.id, // Fixed: using user_id instead of created_by
+            created_by: user.id
         })
     }
 

@@ -1,17 +1,19 @@
-
 'use client'
 
 import { voteItem } from '@/lib/actions/items'
 import { Button } from '@/components/ui/button'
 import { ArrowUp } from 'lucide-react'
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function VoteButton({ itemId, initialVotes, hasVoted }: { itemId: string, initialVotes: number, hasVoted: boolean }) {
     const [isPending, startTransition] = useTransition()
+    const router = useRouter()
 
     const handleVote = () => {
         startTransition(async () => {
             await voteItem(itemId)
+            router.refresh()
         })
     }
 
@@ -20,10 +22,10 @@ export default function VoteButton({ itemId, initialVotes, hasVoted }: { itemId:
             onClick={handleVote}
             disabled={isPending}
             variant={hasVoted ? "default" : "outline"}
-            className={`gap-2 ${hasVoted ? 'bg-green-600 hover:bg-green-700' : ''}`}
+            className={`gap-2 min-w-[140px] ${hasVoted ? 'bg-green-600 hover:bg-green-700 text-white border-transparent' : 'hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20'}`}
         >
-            <ArrowUp className="h-4 w-4" />
-            {hasVoted ? 'Votado' : 'Votar Prioridad'}
+            <ArrowUp className={`h-4 w-4 ${hasVoted ? 'text-white' : 'text-blue-500'}`} />
+            {hasVoted ? 'Votado' : 'Priorizar'}
             <span className="ml-1 font-bold">{initialVotes}</span>
         </Button>
     )

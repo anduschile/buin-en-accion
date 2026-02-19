@@ -7,7 +7,8 @@ import { revalidatePath } from 'next/cache'
 export async function adminUpdateItemStatus(
     itemId: string,
     status: 'published' | 'rejected' | 'resolved' | 'pending',
-    trafficLevel?: 'low' | 'medium' | 'high' | 'critical'
+    trafficLevel?: 'low' | 'medium' | 'high' | 'critical',
+    resolutionNote?: string
 ) {
     const supabase = await createClient()
 
@@ -30,8 +31,16 @@ export async function adminUpdateItemStatus(
     }
 
     const updateData: Record<string, unknown> = { status }
+
     if (trafficLevel) {
         updateData.traffic_level = trafficLevel
+    }
+
+    if (status === 'resolved') {
+        updateData.resolved_at = new Date().toISOString()
+        if (resolutionNote !== undefined) {
+            updateData.resolution_note = resolutionNote
+        }
     }
 
     const { error } = await supabase

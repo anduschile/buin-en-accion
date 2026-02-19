@@ -110,6 +110,22 @@ export default async function AdminItemEditorPage({ params }: { params: Promise<
                         </div>
                     </div>
 
+                    {/* Resolution */}
+                    <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg border shadow-sm">
+                        <h3 className="font-semibold text-lg mb-4">Resolver Reporte</h3>
+                        <form action={async (formData) => {
+                            'use server'
+                            const note = formData.get('resolution_note') as string
+                            await adminUpdateItemStatus(id, 'resolved', undefined, note)
+                        }} className="space-y-3">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Nota de Resolución (Opcional)</label>
+                                <textarea name="resolution_note" rows={2} className="w-full p-2 border rounded" placeholder="Ej: Se reparó el bache..." />
+                            </div>
+                            <Button type="submit" className="w-full bg-zinc-600 hover:bg-zinc-700">Marcar como Resuelto</Button>
+                        </form>
+                    </div>
+
                     {/* Updates */}
                     <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg border shadow-sm">
                         <h3 className="font-semibold text-lg mb-4">Agregar Actualización</h3>

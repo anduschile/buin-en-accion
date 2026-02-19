@@ -46,6 +46,19 @@ export default function AdminItemCard({ item }: { item: AdminItemProps }) {
         setLoading(false)
     }
 
+    // @ts-ignore
+    const itemId = item.id || item.item_id || item.natales_item_id
+
+    if (!itemId) {
+        return (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+                <span className="font-bold text-red-600">Error: Reporte sin ID válido</span>
+                <pre className="text-xs mt-2 overflow-auto">{JSON.stringify(item, null, 2)}</pre>
+            </div>
+        )
+
+    }
+
     return (
         <div className="p-4 bg-white dark:bg-zinc-950 rounded-lg border shadow-sm">
             <div className="flex justify-between items-start mb-4">
@@ -86,7 +99,7 @@ export default function AdminItemCard({ item }: { item: AdminItemProps }) {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <Link href={`/admin/items/${item.id}`} className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                    <Link href={`/admin/items/${itemId}`} className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center">
                         Ver / Editar
                     </Link>
                 </div>
@@ -131,7 +144,7 @@ export default function AdminItemCard({ item }: { item: AdminItemProps }) {
 
             {showUpdateForm && (
                 <form action={async (formData) => {
-                    await adminAddUpdate(item.id, formData);
+                    await adminAddUpdate(itemId, formData);
                     setShowUpdateForm(false);
                 }} className="mt-4 p-4 bg-gray-50 rounded border">
                     <label className="block text-sm font-medium mb-1">Texto de actualización</label>

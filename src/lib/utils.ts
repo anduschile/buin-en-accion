@@ -1,19 +1,13 @@
-
-import { type ClassValue, clsx } from "clsx"
+import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-
 export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs))
 }
 
-export function normalizeTrafficLevel(level: string | null | undefined): 'low' | 'medium' | 'high' {
-    if (!level) return 'low'
-    switch (level) {
-        case 'critical':
-        case 'high': return 'high'
-        case 'medium': return 'medium'
-        case 'low':
-        default: return 'low'
-    }
+export function normalizeTrafficLevel(level: string): 'low' | 'medium' | 'high' {
+  const l = level?.toLowerCase() || ''
+  if (['high', 'alto', 'critical'].includes(l)) return 'high'
+  if (['medium', 'medio', 'moderate'].includes(l)) return 'medium'
+  return 'low'
 }
