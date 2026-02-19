@@ -154,11 +154,6 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
         }
     }
 
-    function saveDraft() {
-        const data = { lat, lng, kind, title, description, categoryId, isGeneral }
-        sessionStorage.setItem('natales_report_draft_v1', JSON.stringify(data))
-    }
-
     return (
         <form action={handleSubmit} className="space-y-6 bg-white dark:bg-zinc-900 p-6 rounded-lg border shadow-sm">
 
