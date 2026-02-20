@@ -7,30 +7,32 @@ import { Navbar } from '@/components/layout/Navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 
+import { tenant } from '@/config/tenant'
+
 export const metadata: Metadata = {
-  title: 'Natales en Acción',
-  description: 'Plataforma ciudadana de Puerto Natales para reportar problemas y destacar aciertos. Priorizamos lo urgente y visibilizamos lo bueno.',
-  metadataBase: new URL("https://natalesenaccion.anduschile.com"),
+  title: tenant.appName,
+  description: tenant.appDescription,
+  metadataBase: new URL(`https://${tenant.domainProd}`),
   openGraph: {
-    title: 'Natales en Acción',
-    description: 'Reporta problemas • Destaca aciertos • Priorizamos lo urgente',
-    url: 'https://natalesenaccion.anduschile.com',
-    siteName: 'Natales en Acción',
-    locale: 'es_CL',
+    title: tenant.appName,
+    description: tenant.appDescription,
+    url: `https://${tenant.domainProd}`,
+    siteName: tenant.appName,
+    locale: tenant.locale,
     type: 'website',
     images: [
       {
         url: '/og.jpg',
         width: 1200,
         height: 630,
-        alt: 'Natales en Acción - Reporta problemas y destaca aciertos',
+        alt: `${tenant.appName} - ${tenant.appDescription}`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Natales en Acción',
-    description: 'Plataforma ciudadana de Puerto Natales. Reporta problemas y destaca aciertos.',
+    title: tenant.appName,
+    description: tenant.appDescription,
     images: ['/og.jpg'],
   },
 }

@@ -17,12 +17,14 @@ interface AdminItemProps {
     evidence_path: string | null
 }
 
+import { tenant } from '@/config/tenant'
+
 export default function AdminItemCard({ item }: { item: AdminItemProps }) {
     const [loading, setLoading] = useState(false)
     const [showUpdateForm, setShowUpdateForm] = useState(false)
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const evidenceUrl = item.evidence_path && supabaseUrl
-        ? `${supabaseUrl}/storage/v1/object/public/natales_evidence/${item.evidence_path}`
+        ? `${supabaseUrl}/storage/v1/object/public/${tenant.bucketEvidence}/${item.evidence_path}`
         : null
 
     const handlePublish = async () => {
@@ -47,7 +49,7 @@ export default function AdminItemCard({ item }: { item: AdminItemProps }) {
     }
 
     // @ts-ignore
-    const itemId = item.id || item.item_id || item.natales_item_id
+    const itemId = item.id || (item as any).item_id
 
     if (!itemId) {
         return (

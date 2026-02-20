@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { LayoutDashboard, ListTodo, Users, FolderOpen } from 'lucide-react'
 
+import { TABLES } from '@/lib/tables'
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
     const supabase = await createClient()
 
@@ -13,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
 
     const { data: profile } = await supabase
-        .from('natales_profiles')
+        .from(TABLES.profiles)
         .select('role')
         .eq('id', user.id)
         .single()

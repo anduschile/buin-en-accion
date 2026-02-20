@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { itemSchema } from '@/lib/validations/schema'
+import { TABLES } from '@/lib/tables'
+import { tenant } from '@/config/tenant'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -44,10 +46,10 @@ export async function createItem(formData: FormData) {
         try {
             const fileExt = evidenceFile.name.split('.').pop()
             const sanitizedFileName = evidenceFile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()
-            const fileName = `natales/${user.id}/${crypto.randomUUID()}-${sanitizedFileName}`
+            const fileName = `${tenant.slug}/${user.id}/${crypto.randomUUID()}-${sanitizedFileName}`
 
             const { error: uploadError } = await supabase.storage
-                .from('natales_evidence')
+                .from(tenant.bucketEvidence)
                 .upload(fileName, evidenceFile, { upsert: false })
 
             if (uploadError) {
@@ -62,7 +64,7 @@ export async function createItem(formData: FormData) {
     }
 
     // Insert into DB
-    const { error: insertError } = await supabase.from('natales_items').insert({
+    const { error: insertError } = await supabase.from(TABLES.items).insert({
         title,
         description,
         latitude,
@@ -97,7 +99,7 @@ export async function voteItem(itemId: string, type: 'priority' = 'priority') {
 
     // Check if already voted
     const { data: existingVote } = await supabase
-        .from('natales_votes')
+        .from(TABLES.votes)
         .select('*')
         .eq('item_id', itemId)
         .eq('created_by', user.id)
@@ -106,13 +108,13 @@ export async function voteItem(itemId: string, type: 'priority' = 'priority') {
     if (existingVote) {
         // Toggle vote (remove it)
         await supabase
-            .from('natales_votes')
+            .from(TABLES.votes)
             .delete()
             .eq('item_id', itemId)
             .eq('created_by', user.id)
     } else {
         // Insert vote
-        await supabase.from('natales_votes').insert({
+        await supabase.from(TABLES.votes).insert({
             item_id: itemId,
             created_by: user.id
         })

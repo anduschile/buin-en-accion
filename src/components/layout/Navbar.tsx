@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Map, TrafficCone, Siren, Menu, User } from 'lucide-react'
 
+import { tenant } from '@/config/tenant'
+
 export async function Navbar() {
     const supabase = await createClient()
     const {
@@ -15,7 +17,7 @@ export async function Navbar() {
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl text-blue-600 dark:text-blue-400">
                     <TrafficCone className="h-6 w-6" />
-                    <span>Natales en Acción</span>
+                    <span>{tenant.appName}</span>
                 </Link>
 
                 <div className="hidden md:flex items-center gap-6">

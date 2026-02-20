@@ -10,7 +10,7 @@ export type Json =
 export interface Database {
     public: {
         Tables: {
-            natales_items: {
+            buin_items: {
                 Row: {
                     id: string
                     created_by: string | null
@@ -59,18 +59,18 @@ export interface Database {
                     {
                         foreignKeyName: "items_category_id_fkey"
                         columns: ["category_id"]
-                        referencedRelation: "natales_categories"
+                        referencedRelation: "buin_categories"
                         referencedColumns: ["id"]
                     },
                     {
                         foreignKeyName: "items_user_id_fkey"
                         columns: ["created_by"]
-                        referencedRelation: "natales_profiles"
+                        referencedRelation: "buin_profiles"
                         referencedColumns: ["id"]
                     }
                 ]
             }
-            natales_categories: {
+            buin_categories: {
                 Row: {
                     id: string
                     name: string
@@ -93,7 +93,7 @@ export interface Database {
                     created_at?: string
                 }
             }
-            natales_votes: {
+            buin_votes: {
                 Row: {
                     item_id: string
                     user_id: string
@@ -110,7 +110,7 @@ export interface Database {
                     created_at?: string
                 }
             }
-            natales_updates: {
+            buin_updates: {
                 Row: {
                     id: string
                     item_id: string | null
@@ -136,7 +136,7 @@ export interface Database {
                     created_at?: string
                 }
             }
-            natales_profiles: {
+            buin_profiles: {
                 Row: {
                     id: string
                     role: 'admin' | 'editor' | 'verifier' | 'citizen'

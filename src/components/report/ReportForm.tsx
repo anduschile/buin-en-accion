@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { createItem } from '@/lib/actions/items'
+import { tenant } from '@/config/tenant'
 import { Button } from '@/components/ui/button'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
@@ -37,7 +38,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
     // Load draft from session on mount (only if it exists from a previous error)
     // AND consume it (delete it) so it doesn't persist for next fresh load
     useEffect(() => {
-        const saved = sessionStorage.getItem('natales_report_draft_v1')
+        const saved = sessionStorage.getItem(`${tenant.slug}_report_draft_v1`)
         if (saved) {
             try {
                 const data = JSON.parse(saved)
@@ -52,7 +53,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
                 if (data.lng !== undefined) setLng(data.lng)
 
                 // CONSUME the draft so it doesn't stick around
-                sessionStorage.removeItem('natales_report_draft_v1')
+                sessionStorage.removeItem(`${tenant.slug}_report_draft_v1`)
             } catch (e) {
                 console.error('Failed to load draft', e)
             }
@@ -63,7 +64,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
 
     function saveDraft() {
         const data = { lat, lng, kind, title, description, categoryId, isGeneral }
-        sessionStorage.setItem('natales_report_draft_v1', JSON.stringify(data))
+        sessionStorage.setItem(`${tenant.slug}_report_draft_v1`, JSON.stringify(data))
     }
 
     async function handleSubmit(formData: FormData) {
@@ -127,7 +128,7 @@ export default function ReportForm({ categories }: { categories: Category[] }) {
             } else {
                 // Success! 
                 // Clear any draft just in case (though we consumed it on load)
-                sessionStorage.removeItem('natales_report_draft_v1')
+                sessionStorage.removeItem(`${tenant.slug}_report_draft_v1`)
 
                 // Reset form state
                 setTitle('')

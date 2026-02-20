@@ -6,18 +6,21 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { adminUpdateItemStatus, adminAddUpdate } from '@/lib/actions/admin'
 
+import { TABLES } from '@/lib/tables'
+import { tenant } from '@/config/tenant'
+
 export default async function AdminItemEditorPage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient()
     const { id } = await params
 
     const { data: item } = await supabase
-        .from('natales_items')
+        .from(TABLES.items)
         .select(`
             *,
-            category:natales_categories(id, name),
-            updates:natales_updates(*),
-            votes:natales_votes(count),
-            user:natales_profiles(full_name, email)
+            category:${TABLES.categories}(id, name),
+            updates:${TABLES.updates}(*),
+            votes:${TABLES.votes}(count),
+            user:${TABLES.profiles}(full_name, email)
         `)
         .eq('id', id)
         .single()
@@ -28,7 +31,7 @@ export default async function AdminItemEditorPage({ params }: { params: Promise<
     let evidence_url = null
     if (item.evidence_path) {
         const { data } = await supabase.storage
-            .from('natales_evidence')
+            .from(tenant.bucketEvidence)
             .createSignedUrl(item.evidence_path, 3600)
         evidence_url = data?.signedUrl || null
     }

@@ -6,6 +6,8 @@ import { ArrowLeft, MapPin, Clock, AlertTriangle, CheckCircle2, ThumbsUp } from 
 import VoteButton from '@/components/item/VoteButton'
 import ItemEvidenceView from '@/components/item/ItemEvidenceView'
 import { Button } from '@/components/ui/button'
+import { TABLES } from '@/lib/tables'
+import { tenant } from '@/config/tenant'
 
 export const revalidate = 0
 
@@ -35,7 +37,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
 
     // 1. Fetch item with category & votes using the specific requested query + resolution fields
     const { data: item, error } = await supabase
-        .from('natales_items')
+        .from(TABLES.items)
         .select(`
             id,
             title,
@@ -50,8 +52,8 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
             resolved_at,
             resolution_note,
             evidence_path,
-            category:natales_categories(id, name, slug),
-            votes:natales_votes(count)
+            category:${TABLES.categories}(id, name, slug),
+            votes:${TABLES.votes}(count)
         `)
         .eq('id', id)
         .maybeSingle()
@@ -83,7 +85,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
     let evidenceUrl = null
     if (item.evidence_path) {
         const { data } = await supabase.storage
-            .from('natales_evidence')
+            .from(tenant.bucketEvidence)
             .getPublicUrl(item.evidence_path)
 
         evidenceUrl = data?.publicUrl
@@ -94,7 +96,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
     let hasVoted = false
     if (user) {
         const { data: vote } = await supabase
-            .from('natales_votes')
+            .from(TABLES.votes)
             .select('*')
             .eq('item_id', item.id)
             .eq('created_by', user.id)

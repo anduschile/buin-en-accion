@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { updateSchema } from '@/lib/validations/schema'
+import { TABLES } from '@/lib/tables'
 import { revalidatePath } from 'next/cache'
 
 export async function adminUpdateItemStatus(
@@ -21,7 +22,7 @@ export async function adminUpdateItemStatus(
 
     // Check profile role
     const { data: profile } = await supabase
-        .from('natales_profiles')
+        .from(TABLES.profiles)
         .select('role')
         .eq('id', user.id)
         .single()
@@ -44,7 +45,7 @@ export async function adminUpdateItemStatus(
     }
 
     const { error } = await supabase
-        .from('natales_items')
+        .from(TABLES.items)
         .update(updateData)
         .eq('id', itemId)
 
@@ -68,7 +69,7 @@ export async function adminAddUpdate(itemId: string, formData: FormData) {
     if (!user) return { error: 'Unauthorized' }
 
     const { data: profile } = await supabase
-        .from('natales_profiles')
+        .from(TABLES.profiles)
         .select('role')
         .eq('id', user.id)
         .single()
@@ -88,7 +89,7 @@ export async function adminAddUpdate(itemId: string, formData: FormData) {
         return { error: validated.error.flatten().fieldErrors }
     }
 
-    const { error } = await supabase.from('natales_updates').insert({
+    const { error } = await supabase.from(TABLES.updates).insert({
         item_id: itemId,
         content: validated.data.content,
         source_url: validated.data.source_url || null,
@@ -110,7 +111,7 @@ export async function publishItem(itemId: string) {
     if (!user) return { error: 'Unauthorized' }
 
     const { data: profile } = await supabase
-        .from('natales_profiles')
+        .from(TABLES.profiles)
         .select('role')
         .eq('id', user.id)
         .single()
@@ -120,7 +121,7 @@ export async function publishItem(itemId: string) {
     }
 
     const { error } = await supabase
-        .from('natales_items')
+        .from(TABLES.items)
         .update({
             status: 'published',
             published_at: new Date().toISOString()
@@ -143,7 +144,7 @@ export async function rejectItem(itemId: string) {
     if (!user) return { error: 'Unauthorized' }
 
     const { data: profile } = await supabase
-        .from('natales_profiles')
+        .from(TABLES.profiles)
         .select('role')
         .eq('id', user.id)
         .single()
@@ -153,7 +154,7 @@ export async function rejectItem(itemId: string) {
     }
 
     const { error } = await supabase
-        .from('natales_items')
+        .from(TABLES.items)
         .update({ status: 'rejected' })
         .eq('id', itemId)
 

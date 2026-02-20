@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { tenant } from '@/config/tenant'
 
 /**
  * Generates a public URL for an evidence file path.
@@ -11,7 +12,7 @@ export function getEvidencePublicUrl(evidencePath: string | null): string | null
     if (evidencePath.startsWith('http')) return evidencePath
 
     const supabase = createClient()
-    const { data } = supabase.storage.from('natales_evidence').getPublicUrl(evidencePath)
+    const { data } = supabase.storage.from(tenant.bucketEvidence).getPublicUrl(evidencePath)
 
     return data.publicUrl || null
 }

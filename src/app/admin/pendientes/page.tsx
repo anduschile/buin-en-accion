@@ -2,14 +2,16 @@
 import { createClient } from '@/lib/supabase/server'
 import AdminItemCard from '@/components/admin/AdminItemCard'
 
+import { TABLES } from '@/lib/tables'
+
 export const revalidate = 0
 
 export default async function AdminPendingPage() {
     const supabase = await createClient()
 
     const { data: items } = await supabase
-        .from('natales_items')
-        .select('*, category:natales_categories(name)')
+        .from(TABLES.items)
+        .select(`*, category:${TABLES.categories}(name)`)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
 

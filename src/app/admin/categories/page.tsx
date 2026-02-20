@@ -5,6 +5,8 @@ import { Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { revalidatePath } from 'next/cache'
 
+import { TABLES } from '@/lib/tables'
+
 export default async function AdminCategoriesPage() {
     const supabase = await createClient()
 
@@ -13,7 +15,7 @@ export default async function AdminCategoriesPage() {
     if (!user) redirect('/login')
 
     const { data: profile } = await supabase
-        .from('natales_profiles')
+        .from(TABLES.profiles)
         .select('role')
         .eq('id', user.id)
         .single()
@@ -24,7 +26,7 @@ export default async function AdminCategoriesPage() {
 
     // Fetch categories
     const { data: categories } = await supabase
-        .from('natales_categories')
+        .from(TABLES.categories)
         .select('*')
         .order('name')
 
@@ -38,14 +40,14 @@ export default async function AdminCategoriesPage() {
 
         if (!name || !slug) return
 
-        await supabase.from('natales_categories').insert({ name, slug, icon })
+        await supabase.from(TABLES.categories).insert({ name, slug, icon })
         revalidatePath('/admin/categories')
     }
 
     async function deleteCategory(id: string) {
         'use server'
         const supabase = await createClient()
-        await supabase.from('natales_categories').delete().eq('id', id)
+        await supabase.from(TABLES.categories).delete().eq('id', id)
         revalidatePath('/admin/categories')
     }
 

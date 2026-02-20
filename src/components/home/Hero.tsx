@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { PlusCircle, Map } from 'lucide-react'
 
+import { tenant } from '@/config/tenant'
+
 export function Hero() {
     return (
         <section className="relative flex flex-col items-center justify-center text-center px-4 py-20 md:py-32 bg-gradient-to-b from-white to-blue-50 dark:from-zinc-950 dark:to-zinc-900 overflow-hidden">
@@ -11,11 +13,11 @@ export function Hero() {
                 </span>
 
                 <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600 dark:from-blue-400 dark:to-cyan-300 drop-shadow-sm">
-                    Natales en Acción
+                    {tenant.appName}
                 </h1>
 
                 <p className="text-xl md:text-2xl text-zinc-600 dark:text-zinc-300 mb-10 leading-relaxed max-w-2xl mx-auto">
-                    Reporta problemas y también destaca aciertos en Puerto Natales. Todo con ubicación, evidencia y seguimiento.
+                    Reporta problemas y también destaca aciertos en {tenant.name}. Todo con ubicación, evidencia y seguimiento.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">

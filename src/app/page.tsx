@@ -8,6 +8,8 @@ import { Examples } from '@/components/home/Examples'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
+import { tenant } from '@/config/tenant'
+
 export default function Home() {
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
@@ -23,7 +25,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">¿Listo para participar?</h2>
           <p className="text-xl text-zinc-400 mb-8 max-w-2xl mx-auto">
-            Ayúdanos a cuidar y mejorar Puerto Natales. Solo toma unos minutos.
+            Ayúdanos a cuidar y mejorar {tenant.name}. Solo toma unos minutos.
           </p>
           <Link href="/reportar">
             <Button size="lg" className="h-14 px-10 text-lg bg-blue-600 hover:bg-blue-500 text-white border-0">

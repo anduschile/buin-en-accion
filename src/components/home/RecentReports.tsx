@@ -26,7 +26,7 @@ export default function RecentReports({ items }: { items: Item[] }) {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {items.map((item) => {
                         // @ts-ignore
-                        const itemId = item.id || item.item_id || item.natales_item_id
+                        const itemId = item.id || (item as any).item_id
 
                         // If no ID, skip linking
                         if (!itemId) return (

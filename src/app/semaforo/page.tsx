@@ -2,6 +2,8 @@
 import { createClient } from '@/lib/supabase/server'
 import SemaforoClient from '@/components/semaforo/SemaforoClient'
 
+import { TABLES } from '@/lib/tables'
+
 export const revalidate = 60
 
 export default async function SemaforoPage() {
@@ -11,11 +13,11 @@ export default async function SemaforoPage() {
     // Note: For large datasets, use a view or RPC for vote counting. 
     // For MVP, we fetch published items and their votes.
     const { data: items } = await supabase
-        .from('natales_items')
+        .from(TABLES.items)
         .select(`
       *,
-      category:natales_categories(name),
-      votes:natales_votes(count)
+      category:${TABLES.categories}(name),
+      votes:${TABLES.votes}(count)
     `)
         .eq('status', 'published')
 

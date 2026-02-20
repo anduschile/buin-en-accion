@@ -6,6 +6,8 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
+import { tenant } from '@/config/tenant'
+
 // Fix for default marker icon in Next.js
 const icon = L.icon({
     iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -28,8 +30,8 @@ function LocationMarker({ position, setPosition }: { position: [number, number] 
 export default function LocationPicker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
     const [position, setPosition] = useState<[number, number] | null>(null)
 
-    // Default to Puerto Natales center
-    const center: [number, number] = [-51.7288, -72.5056]
+    // Default to tenant center
+    const center: [number, number] = [tenant.mapCenter.lat, tenant.mapCenter.lng]
 
     useEffect(() => {
         if (position) {

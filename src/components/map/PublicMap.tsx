@@ -7,6 +7,8 @@ import L from 'leaflet'
 import Link from 'next/link'
 import ImageLightbox from '@/components/shared/ImageLightbox'
 
+import { tenant } from '@/config/tenant'
+
 // Custom Icons
 const createIcon = (color: string) => L.divIcon({
     className: 'custom-pin',
@@ -38,7 +40,7 @@ interface Item {
 
 export default function PublicMap({ items }: { items: Item[] }) {
     // Default center
-    const center: [number, number] = [-51.7288, -72.5056]
+    const center: [number, number] = [tenant.mapCenter.lat, tenant.mapCenter.lng]
     const [filter, setFilter] = useState<'all' | 'problem' | 'good'>('all')
     const [showResolved, setShowResolved] = useState(true)
 
@@ -130,7 +132,7 @@ export default function PublicMap({ items }: { items: Item[] }) {
 
                     // Ensure ID is valid
                     // @ts-ignore
-                    const itemId = item.id || item.item_id || item.natales_item_id
+                    const itemId = item.id || item.item_id
 
                     if (!itemId) return null
 

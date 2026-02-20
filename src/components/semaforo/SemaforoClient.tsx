@@ -93,7 +93,7 @@ export default function SemaforoClient({ items }: { items: SemaforoItem[] }) {
                 ) : (
                     filteredItems.map((item, index) => {
                         // @ts-ignore
-                        const itemId = item.id || item.item_id || item.natales_item_id
+                        const itemId = item.id || item.item_id
                         const hasEvidence = !!item.evidence_path
 
                         return (

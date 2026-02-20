@@ -2,6 +2,9 @@
 import { createClient } from '@/lib/supabase/server'
 import PublicMapClient from '@/components/map/PublicMapClient'
 
+import { TABLES } from '@/lib/tables'
+import { tenant } from '@/config/tenant'
+
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
@@ -9,8 +12,8 @@ export default async function MapPage() {
     const supabase = await createClient()
 
     const { data: rawItems } = await supabase
-        .from('natales_items')
-        .select('*, category:natales_categories(name)')
+        .from(TABLES.items)
+        .select(`*, category:${TABLES.categories}(name)`)
         .in('status', ['published', 'resolved'])
 
     const items = (rawItems || []).map((item) => {
@@ -18,7 +21,7 @@ export default async function MapPage() {
         if (item.evidence_path) {
             // Use public URL directly
             const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-            evidence_url = `${supabaseUrl}/storage/v1/object/public/natales_evidence/${item.evidence_path}`
+            evidence_url = `${supabaseUrl}/storage/v1/object/public/${tenant.bucketEvidence}/${item.evidence_path}`
         }
         return { ...item, evidence_url }
     })

@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import Link from 'next/link'
+import { tenant } from '@/config/tenant'
 
 // Fix for default marker icon
 const icon = L.icon({
@@ -25,8 +26,9 @@ interface Item {
 }
 
 export default function MiniMap({ items }: { items: Item[] }) {
-    // Default center (Puerto Natales)
-    const center: [number, number] = [-51.7288, -72.5056]
+
+    // Default center
+    const center: [number, number] = [tenant.mapCenter.lat, tenant.mapCenter.lng]
 
     return (
         <div className="h-full w-full rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm relative z-0">

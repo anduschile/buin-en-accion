@@ -4,12 +4,14 @@ import AdminItemCard from '@/components/admin/AdminItemCard'
 
 export const revalidate = 0
 
+import { TABLES } from '@/lib/tables'
+
 export default async function AdminItemsPage() {
     const supabase = await createClient()
 
     const { data: items } = await supabase
-        .from('natales_items')
-        .select('*, category:natales_categories(name)')
+        .from(TABLES.items)
+        .select(`*, category:${TABLES.categories}(name)`)
         .order('created_at', { ascending: false })
 
     return (

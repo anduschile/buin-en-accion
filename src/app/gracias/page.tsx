@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { CheckCircle } from 'lucide-react'
+import { tenant } from '@/config/tenant'
 
 export default function ThankYouPage() {
     return (
@@ -13,7 +14,7 @@ export default function ThankYouPage() {
             <h1 className="text-3xl font-bold mb-4">¡Reporte Enviado!</h1>
 
             <p className="text-xl text-zinc-600 mb-8 max-w-md">
-                Gracias por contribuir a mejorar Puerto Natales.
+                Gracias por contribuir a mejorar {tenant.name}.
                 <br />
                 <span className="font-semibold block mt-4">
                     Tu reporte ha quedado en estado "Pendiente".
