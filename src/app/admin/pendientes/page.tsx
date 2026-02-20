@@ -6,14 +6,22 @@ import { TABLES } from '@/lib/tables'
 
 export const revalidate = 0
 
+import { Database } from '@/lib/supabase/database.types'
+
+type AdminItemProps = Database['public']['Tables']['buin_items']['Row'] & {
+    category: Pick<Database['public']['Tables']['buin_categories']['Row'], 'name'> | null
+}
+
 export default async function AdminPendingPage() {
     const supabase = await createClient()
 
-    const { data: items } = await supabase
+    const { data: rawItems } = await supabase
         .from(TABLES.items)
         .select(`*, category:${TABLES.categories}(name)`)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
+
+    const items = rawItems as unknown as AdminItemProps[]
 
     return (
         <div className="container mx-auto px-4 py-8">

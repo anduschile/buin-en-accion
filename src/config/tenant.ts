@@ -1,5 +1,6 @@
 export const tenant = {
   slug: 'buin',
+  name: 'Buin',
   appName: 'Buin en Acción',
   appDescription: 'Plataforma de Buin para reportar problemas y destacar aciertos. Priorizamos lo urgente y visibilizamos lo bueno.',
   tablePrefix: 'buin_',
@@ -10,5 +11,5 @@ export const tenant = {
   },
   defaultZoom: 13,
   locale: 'es_CL',
-  domainProd: 'buinenaccion.anduschile.com',
+  domainProd: 'buinaccion.anduschile.com',
 }

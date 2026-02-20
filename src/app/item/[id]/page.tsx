@@ -8,6 +8,15 @@ import ItemEvidenceView from '@/components/item/ItemEvidenceView'
 import { Button } from '@/components/ui/button'
 import { TABLES } from '@/lib/tables'
 import { tenant } from '@/config/tenant'
+import { Database } from '@/lib/supabase/database.types'
+
+type ItemDetailProps = Database['public']['Tables']['buin_items']['Row'] & {
+    category: Pick<Database['public']['Tables']['buin_categories']['Row'], 'id' | 'name' | 'slug'> | null
+    votes: { count: number }[]
+    resolution_note?: string | null
+    resolved_at?: string | null
+    published_at?: string | null
+}
 
 export const revalidate = 0
 
@@ -36,7 +45,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
     }
 
     // 1. Fetch item with category & votes using the specific requested query + resolution fields
-    const { data: item, error } = await supabase
+    const { data: rawItem, error } = await supabase
         .from(TABLES.items)
         .select(`
             id,
@@ -57,6 +66,8 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
         `)
         .eq('id', id)
         .maybeSingle()
+
+    const item = rawItem as unknown as ItemDetailProps
 
     // 2. Handle not found or RLS restriction gracefully
     if (error) {

@@ -1,0 +1,77 @@
+src/app/admin/items/page.tsx(23,50): error TS2339: Property 'id' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name)\``>'.
+src/app/admin/items/page.tsx(23,54): error TS2740: Type '{ error: true; } & String' is missing the following properties from type 'AdminItemProps': id, title, description, created_at, and 3 more.
+src/app/admin/page.tsx(25,50): error TS2339: Property 'id' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name)\``>'.
+src/app/admin/page.tsx(25,54): error TS2740: Type '{ error: true; } & String' is missing the following properties from type 'AdminItemProps': id, title, description, created_at, and 3 more.
+src/app/admin/pendientes/page.tsx(24,50): error TS2339: Property 'id' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name)\``>'.
+src/app/admin/pendientes/page.tsx(24,54): error TS2740: Type '{ error: true; } & String' is missing the following properties from type 'AdminItemProps': id, title, description, created_at, and 3 more.
+src/app/gracias/page.tsx(17,58): error TS2339: Property 'name' does not exist on type '{ slug: string; appName: string; appDescription: string; tablePrefix: string; bucketEvidence: string; mapCenter: { lat: number; lng: number; }; defaultZoom: number; locale: string; domainProd: string; }'.
+src/app/item/[id]/page.tsx(86,14): error TS2339: Property 'evidence_path' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(89,32): error TS2339: Property 'evidence_path' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(101,33): error TS2339: Property 'id' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(107,28): error TS2339: Property 'votes' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(128,35): error TS2339: Property 'status' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(133,35): error TS2339: Property 'kind' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(138,35): error TS2339: Property 'status' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(146,35): error TS2339: Property 'title' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(152,42): error TS2339: Property 'id' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(161,19): error TS2339: Property 'status' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(168,31): error TS2339: Property 'resolution_note' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(170,27): error TS2339: Property 'resolved_at' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(172,56): error TS2339: Property 'resolved_at' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(184,51): error TS2339: Property 'title' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(192,31): error TS2339: Property 'description' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(200,59): error TS2339: Property 'created_at' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(205,35): error TS2339: Property 'latitude' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/item/[id]/page.tsx(205,63): error TS2339: Property 'longitude' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(id, name, slug),
+            votes:${string}(count)
+        \``>'.
+src/app/mapa/page.tsx(21,18): error TS2339: Property 'evidence_path' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name)\``>'.
+src/app/mapa/page.tsx(24,101): error TS2339: Property 'evidence_path' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name)\``>'.
+src/app/mapa/page.tsx(26,18): error TS2698: Spread types may only be created from object types.
+src/app/page.tsx(28,49): error TS2339: Property 'name' does not exist on type '{ slug: string; appName: string; appDescription: string; tablePrefix: string; bucketEvidence: string; mapCenter: { lat: number; lng: number; }; defaultZoom: number; locale: string; domainProd: string; }'.
+src/app/reportar/page.tsx(29,61): error TS2339: Property 'name' does not exist on type '{ slug: string; appName: string; appDescription: string; tablePrefix: string; bucketEvidence: string; mapCenter: { lat: number; lng: number; }; defaultZoom: number; locale: string; domainProd: string; }'.
+src/app/semaforo/page.tsx(26,9): error TS2698: Spread types may only be created from object types.
+src/app/semaforo/page.tsx(27,27): error TS2339: Property 'votes' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name),
+      votes:${string}(count)
+    \``>'.
+src/app/semaforo/page.tsx(28,30): error TS2339: Property 'category' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name),
+      votes:${string}(count)
+    \``>'.
+src/app/semaforo/page.tsx(29,26): error TS2339: Property 'is_general' does not exist on type 'ParserError<`Unable to parse renamed field at \`category:${string}(name),
+      votes:${string}(count)
+    \``>'.
+src/components/home/Hero.tsx(20,77): error TS2339: Property 'name' does not exist on type '{ slug: string; appName: string; appDescription: string; tablePrefix: string; bucketEvidence: string; mapCenter: { lat: number; lng: number; }; defaultZoom: number; locale: string; domainProd: string; }'.

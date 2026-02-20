@@ -9,21 +9,42 @@ import { adminUpdateItemStatus, adminAddUpdate } from '@/lib/actions/admin'
 import { TABLES } from '@/lib/tables'
 import { tenant } from '@/config/tenant'
 
+import { Database } from '@/lib/supabase/database.types'
+
+type ItemWithRelations = Database['public']['Tables']['buin_items']['Row'] & {
+    category: Pick<Database['public']['Tables']['buin_categories']['Row'], 'id' | 'name'> | null
+    updates: Database['public']['Tables']['buin_updates']['Row'][]
+    votes: { count: number }[]
+    user: Pick<Database['public']['Tables']['buin_profiles']['Row'], 'full_name'> | null
+}
+
 export default async function AdminItemEditorPage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient()
     const { id } = await params
 
-    const { data: item } = await supabase
+    const { data: rawItem } = await supabase
         .from(TABLES.items)
         .select(`
-            *,
+            id,
+            title,
+            description,
+            latitude,
+            longitude,
+            status,
+            traffic_level,
+            kind,
+            evidence_path,
+            created_at,
+            updated_at,
             category:${TABLES.categories}(id, name),
             updates:${TABLES.updates}(*),
             votes:${TABLES.votes}(count),
-            user:${TABLES.profiles}(full_name, email)
+            user:${TABLES.profiles}(full_name)
         `)
         .eq('id', id)
         .single()
+
+    const item = rawItem as unknown as ItemWithRelations
 
     if (!item) notFound()
 

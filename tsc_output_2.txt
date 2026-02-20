@@ -1,0 +1,2 @@
+src/app/item/[id]/page.tsx(38,28): error TS2304: Cannot find name 'Database'.
+src/app/item/[id]/page.tsx(39,24): error TS2304: Cannot find name 'Database'.
