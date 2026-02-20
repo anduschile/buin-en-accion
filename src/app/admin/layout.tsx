@@ -9,18 +9,29 @@ import { TABLES } from '@/lib/tables'
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
     const supabase = await createClient()
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+        console.error('[AdminGuard] No active session:', authError)
         redirect('/login')
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
         .from(TABLES.profiles)
         .select('role')
         .eq('id', user.id)
         .single()
 
-    if (!profile || !['admin', 'editor', 'verifier'].includes(profile.role)) {
+    if (profileError || !profile) {
+        console.error('[AdminGuard] Profile lookup failed:', profileError)
+        console.error('[AdminGuard] Table queried:', TABLES.profiles)
+        console.error('[AdminGuard] User ID:', user.id)
+        redirect('/')
+    }
+
+    if (!['admin', 'editor', 'verifier'].includes(profile.role)) {
+        console.warn('[AdminGuard] Unauthorized Access Attempt')
+        console.warn('[AdminGuard] User ID:', user.id)
+        console.warn('[AdminGuard] Role found:', profile.role)
         redirect('/')
     }
 
