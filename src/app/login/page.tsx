@@ -1,19 +1,50 @@
-
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
-import { Mail, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Mail, AlertCircle, CheckCircle2, Timer } from 'lucide-react'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [error, setError] = useState('')
+    const [cooldown, setCooldown] = useState<number>(0)
+
+    useEffect(() => {
+        const stored = localStorage.getItem('pea_login_cooldown_until')
+        if (stored) {
+            const until = parseInt(stored, 10)
+            const remaining = Math.ceil((until - Date.now()) / 1000)
+            if (remaining > 0) {
+                setCooldown(remaining)
+            } else {
+                localStorage.removeItem('pea_login_cooldown_until')
+            }
+        }
+    }, [])
+
+    useEffect(() => {
+        if (cooldown <= 0) return
+
+        const timer = setInterval(() => {
+            setCooldown((prev) => {
+                if (prev <= 1) {
+                    localStorage.removeItem('pea_login_cooldown_until')
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+
+        return () => clearInterval(timer)
+    }, [cooldown])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (cooldown > 0) return
+
         setLoading(true)
         setMessage('')
         setError('')
@@ -24,16 +55,28 @@ export default function LoginPage() {
             const { error } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+                    emailRedirectTo: `${siteUrl}/auth/callback`,
                 },
             })
 
             if (error) {
                 console.error('OTP error', error)
-                // Show actual error message as requested
-                setError(error.message)
+                if (error.status === 429 || error.message.toLowerCase().includes('rate limit')) {
+                    setError('Demasiados intentos. Espera un momento y vuelve a intentar.')
+                    // Ensure cooldown helps preventing spam even if server rejected
+                    const cooldownTime = 60 // 60 seconds
+                    const until = Date.now() + (cooldownTime * 1000)
+                    localStorage.setItem('pea_login_cooldown_until', until.toString())
+                    setCooldown(cooldownTime)
+                } else {
+                    setError(error.message)
+                }
             } else {
                 setMessage('Listo. Revisa tu bandeja de entrada y spam.')
+                const cooldownTime = 60 // 60 seconds
+                const until = Date.now() + (cooldownTime * 1000)
+                localStorage.setItem('pea_login_cooldown_until', until.toString())
+                setCooldown(cooldownTime)
             }
         } catch (err: any) {
             console.error('Unexpected login error:', err)
@@ -62,10 +105,10 @@ export default function LoginPage() {
                             id="email"
                             type="email"
                             required
-                            disabled={loading}
+                            disabled={loading || cooldown > 0}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                            className="w-full px-3 py-2 border rounded-md dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-zinc-100 dark:disabled:bg-zinc-800"
                             placeholder="tu@email.com"
                         />
                     </div>
@@ -88,9 +131,22 @@ export default function LoginPage() {
                     )}
 
                     <div className="flex flex-col gap-2">
-                        <Button type="submit" className="w-full h-12 text-base gap-2" disabled={loading}>
-                            <Mail className="h-4 w-4" />
-                            {loading ? 'Enviando...' : 'Enviar enlace de acceso'}
+                        <Button
+                            type="submit"
+                            className="w-full h-12 text-base gap-2 transition-all"
+                            disabled={loading || cooldown > 0}
+                        >
+                            {cooldown > 0 ? (
+                                <>
+                                    <Timer className="h-4 w-4 animate-pulse" />
+                                    <span>Reintentar en {cooldown}s</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Mail className="h-4 w-4" />
+                                    {loading ? 'Enviando...' : 'Enviar enlace de acceso'}
+                                </>
+                            )}
                         </Button>
                         <p className="text-center text-xs text-zinc-500">
                             Haz clic para recibir el enlace en tu correo
