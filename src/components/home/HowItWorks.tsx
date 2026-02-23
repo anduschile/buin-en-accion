@@ -1,50 +1,49 @@
+
 export function HowItWorks() {
     const steps = [
         {
-            title: "Tú reportas",
-            description: "Envías el reporte con una foto y ubicación precisa."
+            num: '1',
+            emoji: '📍',
+            title: 'Elige y describe',
+            desc: 'Selecciona la categoría del problema, marca su ubicación en el mapa y agrega una foto si quieres.',
         },
         {
-            title: "Verificamos",
-            description: "Revisamos que cumpla las reglas de respeto y veracidad."
+            num: '2',
+            emoji: '🎫',
+            title: 'Recibe tu código',
+            desc: 'Al enviar, obtienes un código único (ej: BUIN-2026-X4F9A2). Guárdalo para hacer seguimiento.',
         },
         {
-            title: "Publicamos",
-            description: "Aparece en el mapa para que la comunidad lo vea y vote."
+            num: '3',
+            emoji: '📊',
+            title: 'Sigue el estado',
+            desc: 'Entra a /r/[tu-código] en cualquier momento para ver si fue aprobado, derivado o resuelto.',
         },
-        {
-            title: "Actualizamos",
-            description: "Marcamos 'Resuelto' cuando hay solución oficial."
-        }
     ]
 
     return (
-        <section className="py-20 bg-zinc-50 dark:bg-zinc-900/50 border-y border-zinc-200 dark:border-zinc-800">
-            <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">¿Cómo funciona?</h2>
-                    <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-                        Un proceso transparente desde que detectas el problema hasta que se busca una solución.
-                    </p>
+        <section className="py-16 bg-white dark:bg-zinc-950 border-t">
+            <div className="container mx-auto px-4 max-w-3xl">
+                <div className="text-center mb-10">
+                    <h2 className="text-2xl md:text-3xl font-bold mb-2">¿Cómo funciona?</h2>
+                    <p className="text-zinc-500 text-sm">Tres pasos simples, sin registrarse</p>
                 </div>
 
-                <div className="max-w-5xl mx-auto relative">
-                    {/* Line connecting steps (Desktop) */}
-                    <div className="hidden md:block absolute top-[2.5rem] left-0 right-0 h-1 bg-zinc-200 dark:bg-zinc-800 z-0"></div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
-                        {steps.map((step, index) => (
-                            <div key={index} className="flex flex-col items-center text-center">
-                                <div className="w-20 h-20 rounded-full bg-white dark:bg-zinc-900 border-4 border-blue-500 text-blue-600 flex items-center justify-center text-2xl font-bold shadow-sm mb-6 relative">
-                                    {index + 1}
+                <div className="grid md:grid-cols-3 gap-8">
+                    {steps.map((step) => (
+                        <div key={step.num} className="text-center">
+                            <div className="relative inline-flex">
+                                <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-3xl mb-4 mx-auto">
+                                    {step.emoji}
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                                <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
-                                    {step.description}
-                                </p>
+                                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                                    {step.num}
+                                </span>
                             </div>
-                        ))}
-                    </div>
+                            <h3 className="font-bold text-zinc-800 dark:text-zinc-100 mb-2">{step.title}</h3>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{step.desc}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>

@@ -19,7 +19,6 @@ export interface Database {
                     description: string | null
                     latitude: number
                     longitude: number
-
                     status: 'pending' | 'published' | 'rejected' | 'resolved'
                     traffic_level: 'low' | 'medium' | 'high' | 'critical'
                     kind: 'problem' | 'good'
@@ -76,6 +75,8 @@ export interface Database {
                     name: string
                     slug: string
                     icon: string | null
+                    route_hint: string | null
+                    display_order: number | null
                     created_at: string
                 }
                 Insert: {
@@ -83,6 +84,8 @@ export interface Database {
                     name: string
                     slug: string
                     icon?: string | null
+                    route_hint?: string | null
+                    display_order?: number | null
                     created_at?: string
                 }
                 Update: {
@@ -90,6 +93,93 @@ export interface Database {
                     name?: string
                     slug?: string
                     icon?: string | null
+                    route_hint?: string | null
+                    display_order?: number | null
+                    created_at?: string
+                }
+            }
+            buin_reports: {
+                Row: {
+                    id: string
+                    code: string
+                    category_id: string | null
+                    title: string | null
+                    description: string
+                    lat: number | null
+                    lng: number | null
+                    address_text: string | null
+                    evidence_urls: Json
+                    contact_name: string | null
+                    contact_phone: string | null
+                    contact_email: string | null
+                    status: 'pending' | 'published' | 'routed' | 'in_progress' | 'resolved' | 'rejected'
+                    created_by: string | null
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    code?: string
+                    category_id?: string | null
+                    title?: string | null
+                    description: string
+                    lat?: number | null
+                    lng?: number | null
+                    address_text?: string | null
+                    evidence_urls?: Json
+                    contact_name?: string | null
+                    contact_phone?: string | null
+                    contact_email?: string | null
+                    status?: 'pending' | 'published' | 'routed' | 'in_progress' | 'resolved' | 'rejected'
+                    created_by?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    code?: string
+                    category_id?: string | null
+                    title?: string | null
+                    description?: string
+                    lat?: number | null
+                    lng?: number | null
+                    address_text?: string | null
+                    evidence_urls?: Json
+                    contact_name?: string | null
+                    contact_phone?: string | null
+                    contact_email?: string | null
+                    status?: 'pending' | 'published' | 'routed' | 'in_progress' | 'resolved' | 'rejected'
+                    created_by?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
+            buin_report_updates: {
+                Row: {
+                    id: string
+                    report_id: string
+                    from_status: string | null
+                    to_status: string
+                    note: string | null
+                    created_by: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    report_id: string
+                    from_status?: string | null
+                    to_status: string
+                    note?: string | null
+                    created_by?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    report_id?: string
+                    from_status?: string | null
+                    to_status?: string
+                    note?: string | null
+                    created_by?: string | null
                     created_at?: string
                 }
             }
@@ -164,7 +254,10 @@ export interface Database {
             [_ in never]: never
         }
         Functions: {
-            [_ in never]: never
+            generate_buin_code: {
+                Args: Record<PropertyKey, never>
+                Returns: string
+            }
         }
         Enums: {
             user_role: 'admin' | 'editor' | 'verifier' | 'citizen'

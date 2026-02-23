@@ -8,4 +8,6 @@ export const TABLES = {
     categories: `${p}categories`,
     profiles: `${p}profiles`,
     updates: `${p}updates`,
+    reports: `${p}reports`,
+    report_updates: `${p}report_updates`,
 }

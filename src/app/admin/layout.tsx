@@ -2,7 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { LayoutDashboard, ListTodo, Users, FolderOpen } from 'lucide-react'
+import { LayoutDashboard, ListTodo, FolderOpen, FileText } from 'lucide-react'
 
 import { TABLES } from '@/lib/tables'
 
@@ -41,9 +41,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <div className="p-4">
                     <h2 className="font-bold text-lg mb-4">Backoffice</h2>
                     <nav className="space-y-1">
+                        <Link href="/admin/reportes" className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900 text-blue-600 dark:text-blue-400 font-semibold">
+                            <FileText className="h-4 w-4" />
+                            Reportes ★
+                        </Link>
                         <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900">
                             <LayoutDashboard className="h-4 w-4" />
-                            Pendientes
+                            Items (legacy)
                         </Link>
                         <Link href="/admin/items" className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900">
                             <ListTodo className="h-4 w-4" />
